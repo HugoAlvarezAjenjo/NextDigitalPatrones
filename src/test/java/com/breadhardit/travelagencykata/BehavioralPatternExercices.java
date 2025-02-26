@@ -133,29 +133,19 @@ public class BehavioralPatternExercices {
 
         public void addEmployee(Employee employee) {
             EMPLOYEES.put(employee.getId(), employee);
-        }
+            GreetingsNotificator.notify(employee);
 
-        public List<Employee> getUnnotifiedEmployees() {
-            return EMPLOYEES.values().stream().filter(e -> !e.greetingDone).toList();
         }
     }
 
     @Value
     @AllArgsConstructor
     public static class GreetingsNotificator {
-        EmployeesRepository employeesRepository;
 
         @SneakyThrows
-        public void applyNotifications() {
-            while (true) {
-                log.info("Aplying notifications");
-                List<Employee> employeesToNotify = employeesRepository.getUnnotifiedEmployees();
-                employeesToNotify.forEach(e -> {
-                    log.info("Notifying {}", e);
-                    e.setGreetingDone(Boolean.TRUE);
-                });
-                Thread.sleep(100);
-            }
+        public static void notify(final Employee employee) {
+            log.info("Aplying notifications");
+            log.info("Notifying {}", employee);
         }
     }
 
@@ -163,12 +153,9 @@ public class BehavioralPatternExercices {
     @SneakyThrows
     public void companyTest() {
         EmployeesRepository employeesRepository = new EmployeesRepository();
-        GreetingsNotificator greetingsNotificator = new GreetingsNotificator(employeesRepository);
-        new Thread(() -> greetingsNotificator.applyNotifications()).start();
         Thread.sleep(200);
         employeesRepository.addEmployee(Employee.builder().id("1").name("Pepe").email("pepe@pepemail.com").build());
         Thread.sleep(200);
         employeesRepository.addEmployee(Employee.builder().id("2").name("Juan").email("pepe@pepemail.com").build());
     }
-    // Use the proper behavioral pattern to avoid the continuous querying to database
 }
